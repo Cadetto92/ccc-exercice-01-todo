@@ -58,7 +58,7 @@
 <head>
 <meta charset=&quot;utf-8&quot;>
 <meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;>
-<title>To-Do List</title>
+<title>To-Do</title>
 <style>
     :root { --bg: #f4f5fb; --card: #ffffff; --fg: #1c1e2b; --muted: #7a7f94; --line: #eceef6; --border: #dcdff0;
                     --accent: #5b5bf0; --accent-fg: #ffffff; --shadow: 0 8px 30px rgba(40, 45, 90, .08); color-scheme: light; }
@@ -78,7 +78,13 @@
 
     #theme { position: fixed; top: 1rem; right: 1rem; font-size: 1.1rem; line-height: 1; width: 2.5rem; height: 2.5rem;
                       padding: 0; border-radius: 50%; box-shadow: var(--shadow); z-index: 1; }
-    h1 { text-align: center; font-size: 2rem; font-weight: 700; letter-spacing: -.03em; margin: 0 0 1.5rem; }
+    h1 { text-align: center; font-size: 2.75rem; font-weight: 800; letter-spacing: -.04em; margin: 0 0 1.5rem;
+         font-family: ui-rounded, &quot;SF Pro Rounded&quot;, &quot;Segoe UI Variable Display&quot;, &quot;Trebuchet MS&quot;, system-ui, sans-serif;
+         background: linear-gradient(90deg, #5b5bf0, #e040a0, #ff9a3c, #22b8a0, #5b5bf0); background-size: 300% 100%;
+         -webkit-background-clip: text; background-clip: text; color: transparent;
+         animation: hue 8s linear infinite; }
+    @keyframes hue { to { background-position: -300% 0; } }
+    @media (prefers-reduced-motion: reduce) { h1 { animation: none; } }
 
     form { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.25rem; padding: .6rem; background: var(--card);
                   border-radius: 16px; box-shadow: var(--shadow); }
@@ -141,7 +147,7 @@
 </head>
 <body>
 <button id=&quot;theme&quot; type=&quot;button&quot;></button>
-<h1>To-Do List</h1>
+<h1>To-Do</h1>
 
 <form id=&quot;form&quot;>
     <input type=&quot;text&quot; id=&quot;text&quot; placeholder=&quot;New task...&quot; autocomplete=&quot;off&quot;>
@@ -504,7 +510,7 @@
 <head>
 <meta charset=&quot;utf-8&quot;>
 <meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;>
-<title>To-Do List</title>
+<title>To-Do</title>
 <style>
     :root { --bg: #f4f5fb; --card: #ffffff; --fg: #1c1e2b; --muted: #7a7f94; --line: #eceef6; --border: #dcdff0;
                     --accent: #5b5bf0; --accent-fg: #ffffff; --shadow: 0 8px 30px rgba(40, 45, 90, .08); color-scheme: light; }
@@ -524,7 +530,13 @@
 
     #theme { position: fixed; top: 1rem; right: 1rem; font-size: 1.1rem; line-height: 1; width: 2.5rem; height: 2.5rem;
                       padding: 0; border-radius: 50%; box-shadow: var(--shadow); z-index: 1; }
-    h1 { text-align: center; font-size: 2rem; font-weight: 700; letter-spacing: -.03em; margin: 0 0 1.5rem; }
+    h1 { text-align: center; font-size: 2.75rem; font-weight: 800; letter-spacing: -.04em; margin: 0 0 1.5rem;
+         font-family: ui-rounded, &quot;SF Pro Rounded&quot;, &quot;Segoe UI Variable Display&quot;, &quot;Trebuchet MS&quot;, system-ui, sans-serif;
+         background: linear-gradient(90deg, #5b5bf0, #e040a0, #ff9a3c, #22b8a0, #5b5bf0); background-size: 300% 100%;
+         -webkit-background-clip: text; background-clip: text; color: transparent;
+         animation: hue 8s linear infinite; }
+    @keyframes hue { to { background-position: -300% 0; } }
+    @media (prefers-reduced-motion: reduce) { h1 { animation: none; } }
 
     form { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.25rem; padding: .6rem; background: var(--card);
                   border-radius: 16px; box-shadow: var(--shadow); }
@@ -587,7 +599,7 @@
 </head>
 <body>
 <button id=&quot;theme&quot; type=&quot;button&quot;></button>
-<h1>To-Do List</h1>
+<h1>To-Do</h1>
 
 <form id=&quot;form&quot;>
     <input type=&quot;text&quot; id=&quot;text&quot; placeholder=&quot;New task...&quot; autocomplete=&quot;off&quot;>
