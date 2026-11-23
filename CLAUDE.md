@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-A deliberately simple to-do app: plain HTML/CSS/JS, no frameworks, no build step, no tests, no package manager. Keep it that way. Not a git repo.
+A deliberately simple to-do app: plain HTML/CSS/JS, no frameworks, no build step, no tests, no package manager. Keep it that way. Published at https://github.com/Cadetto92/ccc-exercice-01-todo (branch `main`).
 
 - `index.html` is the whole app (inline `<style>` and `<script>`). Run it by opening the file in a browser.
 - `mockup.html` is a **generated** presentation page: two Samsung Galaxy S23 FE phone frames (light and dark) that each embed a full copy of `index.html` through `<iframe srcdoc>`. Never edit the embedded app code there by hand.
