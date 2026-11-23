@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>To-Do List</title>
+<style>
+  :root { --bg: #f4f5fb; --card: #ffffff; --fg: #1c1e2b; --muted: #7a7f94; --line: #eceef6; --border: #dcdff0;
+          --accent: #5b5bf0; --accent-fg: #ffffff; --shadow: 0 8px 30px rgba(40, 45, 90, .08); color-scheme: light; }
+  :root[data-theme=dark] { --bg: #12131a; --card: #1b1d28; --fg: #eceef7; --muted: #8c91a8; --line: #272a39; --border: #343850;
+          --accent: #8b8bff; --accent-fg: #12131a; --shadow: 0 8px 30px rgba(0, 0, 0, .35); color-scheme: dark; }
+
+  * { box-sizing: border-box; }
+  body { font-family: Inter, "Segoe UI Variable", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+         max-width: 780px; margin: 0 auto; padding: 3rem 1rem 2rem; line-height: 1.4;
+         background: var(--bg); color: var(--fg); -webkit-font-smoothing: antialiased; }
+  button, input { font: inherit; color: inherit; }
+  button { cursor: pointer; border: 1px solid var(--border); background: var(--card); border-radius: 10px;
+           padding: .3rem .6rem; transition: background .15s, border-color .15s, transform .1s; }
+  button:hover { border-color: var(--accent); }
+  button:active { transform: scale(.96); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  #theme { position: fixed; top: 1rem; right: 1rem; font-size: 1.1rem; line-height: 1; width: 2.5rem; height: 2.5rem;
+           padding: 0; border-radius: 50%; box-shadow: var(--shadow); z-index: 1; }
+  h1 { text-align: center; font-size: 2rem; font-weight: 700; letter-spacing: -.03em; margin: 0 0 1.5rem; }
+
+  form { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.25rem; padding: .6rem; background: var(--card);
+         border-radius: 16px; box-shadow: var(--shadow); }
+  input[type=text], input[type=date] { padding: .6rem .8rem; border: 1px solid var(--border); border-radius: 10px;
+         background: var(--bg); transition: border-color .15s, box-shadow .15s; }
+  input[type=text]:focus, input[type=date]:focus { outline: none; border-color: var(--accent);
+         box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+  #text { flex: 2 1 180px; }
+  #cat { flex: 1 1 110px; }
+  #add { font-size: 1.4rem; line-height: 1; width: 2.75rem; padding: 0; background: var(--accent);
+         color: var(--accent-fg); border-color: var(--accent); }
+  #add:hover { filter: brightness(1.1); }
+
+  #chips { margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: .4rem; }
+  .chip { border: 1px solid var(--border); background: var(--card); color: var(--fg); border-radius: 999px;
+          padding: .25rem .8rem; font-size: .85rem; }
+  .chip.active { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+  .chip.cat.active { box-shadow: 0 0 0 2px var(--accent); font-weight: 600; }
+  .bubble.tag { margin-left: 0; border: 1px solid; }
+
+  table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--card);
+          border-radius: 16px; box-shadow: var(--shadow); padding: .5rem .75rem; }
+  th { text-align: left; font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
+       color: var(--muted); padding: .6rem .5rem; user-select: none; }
+  th.sortable { cursor: pointer; }
+  th.sortable:hover { color: var(--accent); }
+  td { padding: .7rem .5rem; vertical-align: middle; border-top: 1px solid var(--line); }
+  td:first-child { width: 1.5rem; }
+  td:nth-child(3) { min-width: 6rem; }
+  td:nth-child(4) { white-space: nowrap; }
+  td:last-child { white-space: nowrap; text-align: right; }
+  td.task { width: 100%; font-weight: 500; }
+  td input[type=checkbox] { width: 1.1rem; height: 1.1rem; accent-color: var(--accent); cursor: pointer; }
+  tr.done .task span { text-decoration: line-through; }
+  tr.done td { opacity: .55; }
+  tbody tr:hover td { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+  td button { border-color: transparent; background: transparent; }
+  td button:hover { background: var(--bg); border-color: var(--border); }
+  .bubble { display: inline-block; margin-left: .5rem; padding: .15rem .65rem; border-radius: 999px;
+            font-size: .78rem; font-weight: 600; white-space: nowrap; }
+  td input[type=text], td input[type=date] { width: 100%; padding: .4rem .5rem; }
+
+  /* Phones: each task becomes a compact card instead of a wide table row */
+  @media (max-width: 600px) {
+    body { padding-top: 3.5rem; }
+    table, thead, tbody { display: block; }
+    thead tr { display: flex; gap: 1.25rem; }
+    th:empty { display: none; }
+    tbody tr { display: grid; grid-template-columns: auto 1fr auto; column-gap: .5rem; align-items: center;
+               border-top: 1px solid var(--line); padding: .4rem 0; }
+    tbody td { display: block; border: 0; padding: .15rem .25rem; min-width: 0; }
+    td:empty { display: none; }
+    tbody td:first-child { grid-column: 1; grid-row: 1; }
+    td.task { grid-column: 2; grid-row: 1; width: auto; overflow-wrap: anywhere; }
+    tbody td:nth-child(3) { grid-column: 2; grid-row: 2; font-size: .85rem; color: var(--muted); }
+    tbody td:nth-child(4) { grid-column: 2; grid-row: 3; }
+    tbody td:last-child { grid-column: 3; grid-row: 1; }
+  }
+</style>
+</head>
+<body>
+<button id="theme" type="button"></button>
+<h1>To-Do List</h1>
+
+<form id="form">
+  <input type="text" id="text" placeholder="New task..." autocomplete="off">
+  <input type="text" id="cat" placeholder="Category" list="cats" autocomplete="off">
+  <input type="date" id="due">
+  <button id="add" title="Add task" aria-label="Add task">+</button>
+</form>
+<datalist id="cats"></datalist>
+
+<div id="chips"></div>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th class="sortable" data-sort="text">Task</th>
+      <th class="sortable" data-sort="category">Category</th>
+      <th class="sortable" data-sort="due">Due</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="list"></tbody>
+</table>
+
+<script>
+  // ---- state -------------------------------------------------------------
+  let todos = [];
+  try {
+    const saved = JSON.parse(localStorage.getItem('todos'));
+    const arr = saved && Array.isArray(saved.todos) ? saved.todos : [];
+    // older saves have no category/due (and a now-unused color): fill in blanks
+    todos = arr.map(t => ({ id: t.id, text: t.text, done: !!t.done, category: t.category || '', due: t.due || '' }));
+  } catch (e) {}
+
+  // index.html?demo shows sample tasks (nothing is saved); &theme=dark|light forces a theme. Used by mockup.html.
+  const params = new URLSearchParams(location.search);
+  const demo = params.has('demo');
+  if (demo) {
+    const iso = n => { const d = new Date(); d.setDate(d.getDate() + n);
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+    todos = [
+      ['Submit tax report', 'Work', -2], ['Call the dentist', 'Health', 0], ['Buy groceries', 'Home', 1],
+      ['Prepare team meeting', 'Work', 4], ['Book flights', 'Travel', 12], ['Renew passport', 'Travel', 45],
+      ['Plan birthday party', 'Home', 120], ['Read a book', '', null], ['Pay rent', 'Home', -1, true]
+    ].map(([text, category, days, done], i) => ({ id: i + 1, text, category, due: days === null ? '' : iso(days), done: !!done }));
+  }
+
+  let sort = { key: 'due', dir: 1 };   // default: due date, soonest first
+  let filter = '';                      // '' = all categories
+  let editingId = null;
+
+  const body = document.getElementById('list');
+  const form = document.getElementById('form');
+  const $ = id => document.getElementById(id);
+
+  function save() {
+    if (demo) return;
+    try { localStorage.setItem('todos', JSON.stringify({ todos })); } catch (e) {}
+  }
+
+  // ---- due date helpers --------------------------------------------------
+  function daysUntil(due) {
+    const [y, m, d] = due.split('-').map(Number);
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    return Math.round((new Date(y, m - 1, d) - today) / 86400000);
+  }
+
+  const plural = (n, word) => n + ' ' + word + (n === 1 ? '' : 's');
+
+  // Remaining time: days up to 14, then weeks, months, years
+  function remainingText(days) {
+    if (days < 0) return plural(-days, 'day') + ' late';
+    if (days === 0) return 'Today';
+    if (days <= 14) return plural(days, 'day');
+    if (days < 60) return plural(Math.round(days / 7), 'week');
+    if (days < 330) return plural(Math.round(days / 30.44), 'month');
+    return plural(Math.round(days / 365), 'year');
+  }
+
+  // Bubble colors: overdue/today = strong red, then orange -> green -> light blue (14+ days)
+  function bubbleFor(t) {
+    if (!t.due) return null;
+    const days = daysUntil(t.due);
+    const b = document.createElement('span');
+    b.className = 'bubble';
+    b.textContent = remainingText(days);
+    b.title = 'Due ' + t.due;
+    if (t.done) {
+      b.style.background = '#ddd'; b.style.color = '#555';
+    } else if (days <= 0) {
+      b.style.background = 'hsl(0, 80%, 48%)'; b.style.color = '#fff';
+    } else {
+      const d = Math.min(days, 14);
+      b.style.background = `hsl(${Math.round(d / 14 * 200)}, 85%, ${Math.round(65 + 20 * d / 14)}%)`;
+      b.style.color = '#222';
+    }
+    return b;
+  }
+
+  // Each category gets a stable color derived from its name (same name -> same color everywhere)
+  function catColors(name) {
+    let h = 0;
+    for (const ch of name.toLowerCase()) h = (h * 31 + ch.charCodeAt(0)) % 360;
+    return { bg: `hsl(${h}, 70%, 86%)`, border: `hsl(${h}, 55%, 40%)` };
+  }
+
+  // "work" and "Work" are the same category: reuse the spelling already in use
+  function normalizeCategory(name) {
+    const found = todos.find(t => t.category && t.category.toLowerCase() === name.toLowerCase());
+    return found ? found.category : name;
+  }
+
+  function styleCategory(el, name) {
+    const c = catColors(name);
+    el.style.background = c.bg;
+    el.style.color = '#222';
+    el.style.borderColor = c.border;
+  }
+
+  // ---- sorting / filtering -----------------------------------------------
+  function compare(a, b) {
+    const va = a[sort.key].toLowerCase(), vb = b[sort.key].toLowerCase();
+    if (va !== vb) {
+      if (!va) return 1;                 // empty values always last
+      if (!vb) return -1;
+      return (va < vb ? -1 : 1) * sort.dir;
+    }
+    return 0;
+  }
+
+  function visibleTodos() {
+    return todos
+      .filter(t => !filter || t.category === filter)
+      .map((t, i) => ({ t, i }))
+      .sort((x, y) => compare(x.t, y.t) || x.i - y.i)   // ties keep creation order
+      .map(x => x.t);
+  }
+
+  // ---- rendering ---------------------------------------------------------
+  function cell(tr, className) {
+    const td = document.createElement('td');
+    if (className) td.className = className;
+    tr.append(td);
+    return td;
+  }
+
+  // Trash icon drawn in the text color (the emoji version rendered grey)
+  const TRASH = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg>';
+
+  function button(label, title, action) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    if (label.startsWith('<svg')) b.innerHTML = label;   // our own static icon markup
+    else b.textContent = label;
+    b.title = title;
+    b.dataset.action = action;
+    return b;
+  }
+
+  function renderChips() {
+    const cats = [...new Set(todos.map(t => t.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+    if (filter && !cats.includes(filter)) filter = '';
+    const box = $('chips');
+    box.innerHTML = '';
+    if (!cats.length) return;
+    for (const c of ['', ...cats]) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip' + (c === filter ? ' active' : '');
+      chip.textContent = c || 'All';
+      if (c) { chip.classList.add('cat'); styleCategory(chip, c); }
+      chip.dataset.filter = c;
+      box.append(chip);
+    }
+    const list = $('cats');
+    list.innerHTML = '';
+    for (const c of cats) { const o = document.createElement('option'); o.value = c; list.append(o); }
+  }
+
+  function renderHeaders() {
+    for (const th of document.querySelectorAll('th.sortable')) {
+      const label = th.dataset.sort === 'text' ? 'Task' : th.dataset.sort === 'category' ? 'Category' : 'Due';
+      const arrow = th.dataset.sort === sort.key ? (sort.dir === 1 ? ' ▲' : ' ▼') : '';
+      th.textContent = label + arrow;
+    }
+  }
+
+  function render() {
+    renderChips();
+    renderHeaders();
+    body.innerHTML = '';
+    let focusEl = null;
+
+    for (const t of visibleTodos()) {
+      const tr = document.createElement('tr');
+      tr.dataset.id = t.id;
+      if (t.done) tr.className = 'done';
+
+      const cbCell = cell(tr);
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = t.done;
+      cbCell.append(cb);
+
+      const taskCell = cell(tr, 'task');
+      const catCell = cell(tr);
+      const dueCell = cell(tr);
+      const actCell = cell(tr);
+
+      if (String(t.id) === String(editingId)) {
+        tr.classList.add('editing');
+        const text = document.createElement('input');
+        text.type = 'text'; text.value = t.text; text.dataset.field = 'text';
+        const cat = document.createElement('input');
+        cat.type = 'text'; cat.value = t.category; cat.setAttribute('list', 'cats'); cat.dataset.field = 'category';
+        const due = document.createElement('input');
+        due.type = 'date'; due.value = t.due; due.dataset.field = 'due';
+        taskCell.append(text); catCell.append(cat); dueCell.append(due);
+        actCell.append(button('Save', 'Save (Enter)', 'save'), ' ', button('Cancel', 'Cancel (Esc)', 'cancel'));
+        focusEl = text;
+      } else {
+        const span = document.createElement('span');
+        span.textContent = t.text;
+        span.dataset.action = 'edit-text';
+        taskCell.append(span);
+        if (t.category) {
+          const tag = document.createElement('span');
+          tag.className = 'bubble tag';
+          tag.textContent = t.category;
+          styleCategory(tag, t.category);
+          catCell.append(tag);
+        }
+        dueCell.textContent = t.due;
+        const bubble = bubbleFor(t);
+        if (bubble) dueCell.append(bubble);
+        actCell.append(button('✎', 'Edit task', 'edit'), ' ', button(TRASH, 'Delete task', 'delete'));
+      }
+      body.append(tr);
+    }
+    if (focusEl) { focusEl.focus(); focusEl.select(); }
+  }
+
+  // ---- actions -----------------------------------------------------------
+  function commitEdit(tr) {
+    const t = todos.find(t => String(t.id) === tr.dataset.id);
+    const val = f => tr.querySelector(`[data-field=${f}]`).value;
+    const text = val('text').trim();
+    if (t) {
+      if (text) t.text = text;           // empty text keeps the old text
+      t.category = normalizeCategory(val('category').trim());
+      t.due = val('due');
+    }
+    editingId = null;
+    save(); render();
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const text = $('text').value.trim();
+    if (!text) return;
+    todos.push({
+      id: Date.now() + Math.random(),
+      text, done: false,
+      category: normalizeCategory($('cat').value.trim()),
+      due: $('due').value
+    });
+    $('text').value = ''; $('cat').value = ''; $('due').value = '';
+    save(); render();
+  });
+
+  document.querySelector('thead').addEventListener('click', e => {
+    const th = e.target.closest('th.sortable');
+    if (!th) return;
+    const key = th.dataset.sort;
+    sort = { key, dir: sort.key === key ? -sort.dir : 1 };
+    render();
+  });
+
+  $('chips').addEventListener('click', e => {
+    if (e.target.dataset.filter === undefined) return;
+    filter = e.target.dataset.filter;
+    render();
+  });
+
+  body.addEventListener('click', e => {
+    const tr = e.target.closest('tr');
+    if (!tr) return;
+    const id = tr.dataset.id;
+    const action = e.target.dataset.action;
+    if (e.target.type === 'checkbox') {
+      const t = todos.find(t => String(t.id) === id);
+      t.done = e.target.checked;
+      save(); render();
+    } else if (action === 'edit') {
+      editingId = id; render();
+    } else if (action === 'save') {
+      commitEdit(tr);
+    } else if (action === 'cancel') {
+      editingId = null; render();
+    } else if (action === 'delete') {
+      todos = todos.filter(t => String(t.id) !== id);
+      if (String(editingId) === id) editingId = null;
+      save(); render();
+    }
+  });
+
+  body.addEventListener('dblclick', e => {
+    if (e.target.dataset.action !== 'edit-text') return;
+    editingId = e.target.closest('tr').dataset.id;
+    render();
+  });
+
+  body.addEventListener('keydown', e => {
+    const tr = e.target.closest('tr.editing');
+    if (!tr) return;
+    if (e.key === 'Enter') { e.preventDefault(); commitEdit(tr); }
+    else if (e.key === 'Escape') { editingId = null; render(); }
+  });
+
+  // ---- theme -------------------------------------------------------------
+  function applyTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    $('theme').textContent = theme === 'dark' ? '☀️' : '🌙';
+    $('theme').title = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+    $('theme').setAttribute('aria-label', $('theme').title);
+  }
+
+  let theme = null;
+  try { theme = localStorage.getItem('theme'); } catch (e) {}
+  if (demo && params.get('theme')) theme = params.get('theme');
+  if (theme !== 'dark' && theme !== 'light') {
+    theme = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  applyTheme(theme);
+
+  $('theme').addEventListener('click', () => {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    applyTheme(theme);
+    if (!demo) try { localStorage.setItem('theme', theme); } catch (e) {}
+  });
+
+  render();
+</script>
+</body>
+</html>
